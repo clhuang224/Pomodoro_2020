@@ -4,16 +4,30 @@
     <header class="header">
       <ul class="menu">
         <li class="menu-li">
-          <router-link class="button todolist" tag="button" to="/todolist"></router-link>
+          <router-link
+            class="button todolist"
+            tag="button"
+            to="/todolist"
+          ></router-link>
         </li>
         <li class="menu-li">
-          <router-link class="button analytics" tag="button" to="/analytics"></router-link>
+          <router-link
+            class="button analytics"
+            tag="button"
+            to="/analytics"
+          ></router-link>
         </li>
         <li class="menu-li">
-          <router-link class="button ringtones" tag="button" to="/ringtones"></router-link>
+          <router-link
+            class="button ringtones"
+            tag="button"
+            to="/ringtones"
+          ></router-link>
         </li>
         <li class="menu-li">
-          <router-link class="button close" tag="button" :to="{name: 'Home'}">╳</router-link>
+          <router-link class="button close" tag="button" :to="{ name: 'Home' }"
+            >╳</router-link
+          >
         </li>
       </ul>
       <h1 class="title">POMODORO</h1>
@@ -23,7 +37,7 @@
 
 <script>
 export default {
-  name: 'Pomodoro',
+  name: "Pomodoro"
 };
 </script>
 
@@ -34,9 +48,8 @@ export default {
   justify-content: center;
   overflow: hidden;
 }
-/******** header ********/
 
-.header {
+.pomodoro .header {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
