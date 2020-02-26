@@ -48,7 +48,7 @@ export default {
     list() {
       return this.$store.state.list;
     }
-  },
+  }
 };
 </script>
 

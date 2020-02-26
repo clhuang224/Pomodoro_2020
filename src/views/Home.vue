@@ -133,7 +133,9 @@ export default {
                 this.$store.dispatch("updateList", {
                   type: "startBreak"
                 });
-                let audio = new Audio(require(`./../assets/music/${this.$store.state.breakRing}.mp3`));
+                let audio = new Audio(
+                  require(`./../assets/music/${this.$store.state.breakRing}.mp3`)
+                );
                 audio.play().catch(e => {
                   console.log(e);
                 });
@@ -141,7 +143,9 @@ export default {
                 this.$store.dispatch("updateList", {
                   type: "startWork"
                 });
-                let audio = new Audio(require(`./../assets/music/${this.$store.state.workRing}.mp3`));
+                let audio = new Audio(
+                  require(`./../assets/music/${this.$store.state.workRing}.mp3`)
+                );
                 audio.play().catch(e => {
                   console.log(e);
                 });
@@ -156,7 +160,7 @@ export default {
           }
         }
       }
-    },
+    }
   },
   filters: {
     timeFormat: value => {
