@@ -54,8 +54,9 @@ export default {
 
 <style lang="scss">
 .pomodoro {
-  display: flex;
+  margin: auto;
   width: 1280px;
+  display: flex;
   justify-content: center;
   overflow: hidden;
 }

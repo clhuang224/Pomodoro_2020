@@ -47,9 +47,4 @@ export default {
 </script>
 <style lang="scss">
 @import "./assets/css/reset.css";
-.app {
-  display: flex;
-  justify-content: center;
-  color: #003164;
-}
 </style>

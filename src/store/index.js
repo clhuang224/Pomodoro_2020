@@ -42,6 +42,13 @@ export default new Vuex.Store({
     },
     UPDATE_PLAYING: (state, playing) => {
       state.playing = playing;
+    },
+    UPDATE_RINGTONE: (state, payload) => {
+      if (payload.type === "work") {
+        state.workRing = payload.ring;
+      } else {
+        state.breakRing = payload.ring;
+      }
     }
   },
   actions: {
@@ -50,6 +57,9 @@ export default new Vuex.Store({
     },
     updatePlaying: (context, payload) => {
       context.commit("UPDATE_PLAYING", payload);
+    },
+    updateRingtone: (context, payload) => {
+      context.commit("UPDATE_RINGTONE", payload);
     }
   },
   modules: {}

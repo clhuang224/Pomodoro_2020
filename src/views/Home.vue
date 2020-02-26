@@ -71,6 +71,12 @@ export default {
     },
     playing() {
       return this.$store.state.playing;
+    },
+    workRing() {
+      return this.$store.state.workRing;
+    },
+    breakRing() {
+      return this.$store.state.breakRing;
     }
   },
   methods: {
@@ -133,22 +139,22 @@ export default {
                 this.$store.dispatch("updateList", {
                   type: "startBreak"
                 });
-                let audio = new Audio(
-                  require(`./../assets/music/${this.$store.state.breakRing}.mp3`)
-                );
-                audio.play().catch(e => {
-                  console.log(e);
-                });
+                if (this.breakRing !== "none") {
+                  let audio = new Audio(
+                    require(`./../assets/music/${this.breakRing}.mp3`)
+                  );
+                  audio.play();
+                }
               } else {
                 this.$store.dispatch("updateList", {
                   type: "startWork"
                 });
-                let audio = new Audio(
-                  require(`./../assets/music/${this.$store.state.workRing}.mp3`)
-                );
-                audio.play().catch(e => {
-                  console.log(e);
-                });
+                if (this.workRing !== "none") {
+                  let audio = new Audio(
+                    require(`./../assets/music/${this.workRing}.mp3`)
+                  );
+                  audio.play();
+                }
               }
             }
           }, 1000);
