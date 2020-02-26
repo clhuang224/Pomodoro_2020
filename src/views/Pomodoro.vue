@@ -1,11 +1,5 @@
 <template>
   <div class="pomodoro">
-    <audio class="ring break" preload="none">
-      <source :src="`../assets/music/${breakRing}.mp3`" type="audio/mpeg" />
-    </audio>
-    <audio class="ring work" preload="none">
-      <source :src="`../assets/music/${workRing}.mp3`" type="audio/mpeg" />
-    </audio>
     <router-view />
     <header class="header">
       <ul class="menu">

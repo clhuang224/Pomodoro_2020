@@ -107,8 +107,9 @@ export default {
     /**
      * 切換計時開關。
      * 1. .play 會切換 .playing ，切換 play/pause 圖示
-     * 2. list[0] 的 time 會減少，如果工作滿 25 分鐘， tomato++
-     * 詳情要看 /src/store/index.js action 中的 updatePlaying
+     * 2. playing 的話， list[0] 的 time 會減少
+     * 3. 如果工作滿 25 分鐘，播開始休息鈴聲， tomato++
+     * 4. 如果休息滿 5 分鐘，播開始工作鈴聲
      */
     playingToggle: function() {
       // 暫停計時
@@ -132,21 +133,7 @@ export default {
                 this.$store.dispatch("updateList", {
                   type: "startBreak"
                 });
-                // let audio = document.querySelector("audio.work");
-                // console.log(audio);
-                // let promise = audio.play();
-                // console.log(promise);
-                // if (promise) {
-                //   promise
-                //     .then(() => {
-                //       console.log("success");
-                //     })
-                //     .catch(e => {
-                //       console.log(e);
-                //     });
-                // }
-                let audio = new Audio(`../assets/music/${this.$store.state.breakRing}.mp3`);
-                console.log(audio);
+                let audio = new Audio(require(`./../assets/music/${this.$store.state.breakRing}.mp3`));
                 audio.play().catch(e => {
                   console.log(e);
                 });
@@ -154,19 +141,10 @@ export default {
                 this.$store.dispatch("updateList", {
                   type: "startWork"
                 });
-                let audio = document.querySelector("audio.break");
-                console.log(audio);
-                let promise = audio.play();
-                console.log(promise);
-                if (promise) {
-                  promise
-                    .then(() => {
-                      console.log("success");
-                    })
-                    .catch(e => {
-                      console.log(e);
-                    });
-                }
+                let audio = new Audio(require(`./../assets/music/${this.$store.state.workRing}.mp3`));
+                audio.play().catch(e => {
+                  console.log(e);
+                });
               }
             }
           }, 1000);
@@ -179,21 +157,6 @@ export default {
         }
       }
     },
-    playAudio: audio => {
-      fetch(audio.src)
-        .then(response => response.blob())
-        .then(blob => {
-          console.log(audio.srcObject);
-          audio.srcObject = blob;
-          return audio.play();
-        })
-        .then(() => {
-          console.log("play");
-        })
-        .catch(e => {
-          console.log(e);
-        });
-    }
   },
   filters: {
     timeFormat: value => {
@@ -344,7 +307,7 @@ $setting: #003164;
         width: 24px;
         height: 24px;
         background-color: transparent;
-        background-image: url("../assets/img/play-outline.png");
+        background-image: url("./../assets/img/play-outline.png");
         background-size: 24px 24px;
       }
     }
@@ -395,10 +358,10 @@ $setting: #003164;
     top: 203px;
     background-size: 96px 96px;
     background-color: transparent;
-    background-image: url("../assets/img/play-white.png");
+    background-image: url("./../assets/img/play-white.png");
   }
   &.playing .playButton {
-    background-image: url("../assets/img/pause-pink.png");
+    background-image: url("./../assets/img/pause-pink.png");
   }
   .finish {
     background-color: #fff;
@@ -457,11 +420,11 @@ $setting: #003164;
   }
 
   .play .playButton {
-    background-image: url("../assets/img/play-white.png");
+    background-image: url("./../assets/img/play-white.png");
   }
 
   .play.playing .playButton {
-    background-image: url("../assets/img/pause-blue.png");
+    background-image: url("./../assets/img/pause-blue.png");
   }
 
   .play .finish {
