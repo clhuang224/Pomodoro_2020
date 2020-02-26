@@ -33,7 +33,9 @@
         </div>
         <div class="information">
           <div class="time">{{ list[0].time | timeFormat }}</div>
-          <div class="currentMission">{{ list[0].title | titleFormat(15) }}</div>
+          <div class="currentMission">
+            {{ list[0].title | titleFormat(15) }}
+          </div>
         </div>
       </div>
     </div>
@@ -58,6 +60,9 @@ export default {
     },
     breakRing() {
       return this.$store.state.breakRing;
+    },
+    timerId() {
+      return this.$store.state.timerId;
     }
   },
   methods: {
@@ -67,58 +72,71 @@ export default {
       }
     },
     /**
-     * 切換計時開關。
-     * 1. .play 會切換 .playing ，切換 play/pause 圖示
-     * 2. playing 的話， list[0] 的 time 會減少
+     * 開始計時。
+     * 1. playing = true
+     * 2. list[0] 的 time 會減少
      * 3. 如果工作滿 25 分鐘，播開始休息鈴聲， tomato++
      * 4. 如果休息滿 5 分鐘，播開始工作鈴聲
+     */
+    play: function() {
+      this.$store.dispatch("updatePlaying", true);
+      let that = this;
+      let id = setInterval(() => {
+        if (that.list[0].time > 0) {
+          this.$store.dispatch("updateList", {
+            type: "decreaseTime"
+          });
+        } else {
+          if (this.list[0].working === true) {
+            this.$store.dispatch("updateList", {
+              type: "startBreak"
+            });
+            if (this.breakRing !== "none") {
+              let audio = new Audio(
+                require(`./../assets/music/${this.breakRing}.mp3`)
+              );
+              audio.play();
+            }
+          } else {
+            this.$store.dispatch("updateList", {
+              type: "startWork"
+            });
+            if (this.workRing !== "none") {
+              let audio = new Audio(
+                require(`./../assets/music/${this.workRing}.mp3`)
+              );
+              audio.play();
+            }
+          }
+        }
+      }, 1000);
+      this.$store.dispatch("updateTimerID", id);
+    },
+    /**
+     * 暫停計時。
+     */
+    pause: function() {
+      this.$store.dispatch("updatePlaying", false);
+      if (this.timerId !== null) {
+        clearInterval(this.timerId);
+        this.$store.dispatch("updateTimerID", null);
+      }
+    },
+    /**
+     * 開關計時。
      */
     playingToggle: function() {
       // 暫停計時
       if (this.playing === true) {
-        this.$store.dispatch("updatePlaying", false);
-        clearInterval(this.timerID);
-        this.timerID = null;
+        this.pause();
         // 開始計時
       } else {
         if (this.list.length > 0) {
-          // playing = true
-          this.$store.dispatch("updatePlaying", true);
-          let that = this;
-          this.timerID = setInterval(() => {
-            if (that.list[0].time > 0) {
-              this.$store.dispatch("updateList", {
-                type: "decreaseTime"
-              });
-            } else {
-              if (this.list[0].working === true) {
-                this.$store.dispatch("updateList", {
-                  type: "startBreak"
-                });
-                if (this.breakRing !== "none") {
-                  let audio = new Audio(
-                    require(`./../assets/music/${this.breakRing}.mp3`)
-                  );
-                  audio.play();
-                }
-              } else {
-                this.$store.dispatch("updateList", {
-                  type: "startWork"
-                });
-                if (this.workRing !== "none") {
-                  let audio = new Audio(
-                    require(`./../assets/music/${this.workRing}.mp3`)
-                  );
-                  audio.play();
-                }
-              }
-            }
-          }, 1000);
+          this.play();
           // 沒有 task 的時候要結束計時
         } else {
-          if (this.timerID !== null) {
-            clearInterval(this.timerID);
-            this.timerID = null;
+          if (this.timerId !== null) {
+            this.pause();
           }
         }
       }
@@ -134,12 +152,10 @@ export default {
         (value % 60).toString().padStart(2, "0");
       return result;
     },
-    titleFormat: (value,len) => {
+    titleFormat: (value, len) => {
       if (value.length > len) {
         return value.slice(0, len) + "...";
-      }
-      else
-      {
+      } else {
         return value;
       }
     }

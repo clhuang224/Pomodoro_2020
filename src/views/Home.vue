@@ -61,8 +61,7 @@ export default {
   name: "Home",
   data: function() {
     return {
-      taskInput: "",
-      timerID: null
+      taskInput: ""
     };
   },
   computed: {
@@ -77,6 +76,9 @@ export default {
     },
     breakRing() {
       return this.$store.state.breakRing;
+    },
+    timerId() {
+      return this.$store.state.timerId;
     }
   },
   methods: {
@@ -93,7 +95,8 @@ export default {
             createTime: new Date(),
             tomatoAmount: 0,
             working: true,
-            time: 25 * 60
+            time: 25 * 60,
+            done: false
           }
         });
         this.taskInput = "";
@@ -132,7 +135,7 @@ export default {
     play: function() {
       this.$store.dispatch("updatePlaying", true);
       let that = this;
-      this.timerID = setInterval(() => {
+      let id = setInterval(() => {
         if (that.list[0].time > 0) {
           this.$store.dispatch("updateList", {
             type: "decreaseTime"
@@ -161,15 +164,16 @@ export default {
           }
         }
       }, 1000);
+      this.$store.dispatch("updateTimerID", id);
     },
     /**
      * 暫停計時。
      */
     pause: function() {
       this.$store.dispatch("updatePlaying", false);
-      if (this.timerID !== null) {
-        clearInterval(this.timerID);
-        this.timerID = null;
+      if (this.timerId !== null) {
+        clearInterval(this.timerId);
+        this.$store.dispatch("updateTimerID", null);
       }
     },
     /**
@@ -185,7 +189,7 @@ export default {
           this.play();
           // 沒有 task 的時候要結束計時
         } else {
-          if (this.timerID !== null) {
+          if (this.timerId !== null) {
             this.pause();
           }
         }

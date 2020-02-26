@@ -52,6 +52,9 @@ export default new Vuex.Store({
       } else {
         state.breakRing = payload.ring;
       }
+    },
+    UPDATE_TIMER_ID: (state, id) => {
+      state.timerId = id;
     }
   },
   actions: {
@@ -63,6 +66,9 @@ export default new Vuex.Store({
     },
     updateRingtone: (context, payload) => {
       context.commit("UPDATE_RINGTONE", payload);
+    },
+    updateTimerID: (context, payload) => {
+      context.commit("UPDATE_TIMER_ID", payload);
     }
   },
   modules: {}

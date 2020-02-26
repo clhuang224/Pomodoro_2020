@@ -4,6 +4,8 @@ import Pomodoro from "@/views/Pomodoro.vue";
 import Home from "@/views/Home.vue";
 import Dashboard from "@/views/Dashboard";
 import Ringtones from "@/views/Ringtones";
+import Todolist from "@/views/Todolist";
+import Analytics from "@/views/Analytics";
 
 Vue.use(VueRouter);
 
@@ -25,11 +27,13 @@ const routes = [
         children: [
           {
             path: "/todolist",
-            name: "Todolist"
+            name: "Todolist",
+            component: Todolist
           },
           {
             path: "/analytics",
-            name: "Analytics"
+            name: "Analytics",
+            component: Analytics
           },
           {
             path: "/ringtones",

@@ -58,7 +58,7 @@ export default {
     isHome() {
       return this.$route.name === "Home";
     }
-  },
+  }
 };
 </script>
 
