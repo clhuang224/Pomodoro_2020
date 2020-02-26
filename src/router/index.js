@@ -19,7 +19,7 @@ const routes = [
         component: Home
       },
       {
-        path: "/:type",
+        path: "/",
         name: "Dashboard",
         component: Dashboard,
         children: [

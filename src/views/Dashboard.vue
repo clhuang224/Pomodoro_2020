@@ -1,36 +1,39 @@
 <template>
-  <div class="dashboard">
+  <div
+    class="dashboard"
+    :class="{ break: list.length > 0 && list[0].working === false }"
+  >
     <div class="left">
       <ul class="menu">
         <li>
-          <button class="todolist">
+          <router-link tag="button" to="/todolist" class="todolist">
             <div class="sign"></div>
             <div class="text">TO-DO LIST</div>
-          </button>
+          </router-link>
         </li>
         <li>
-          <button class="analytics">
+          <router-link tag="button" to="/analytics" class="analytics">
             <div class="sign"></div>
             <div class="text">ANALYTICS</div>
-          </button>
+          </router-link>
         </li>
         <li>
-          <button class="ringtones">
+          <router-link tag="button" to="/ringtones" class="ringtones">
             <div class="sign"></div>
             <div class="text">RINGTONES</div>
-          </button>
+          </router-link>
         </li>
       </ul>
-      <div class="bottom">
+      <div class="bottom" v-if="list.length > 0">
         <div class="halfCircle"></div>
-        <div class="play">
+        <div class="play" :class="{ playing: playing === true }">
           <div class="sector">
-            <button class="playButton"></button>
+            <button class="playButton" @click="playingToggle()"></button>
           </div>
         </div>
         <div class="information">
-          <div class="time"></div>
-          <div class="currentMission"></div>
+          <div class="time">{{ list[0].time | timeFormat }}</div>
+          <div class="currentMission">{{ list[0].title | titleFormat(15) }}</div>
         </div>
       </div>
     </div>
@@ -39,7 +42,108 @@
 </template>
 <script>
 export default {
-  name: "LeftMenu"
+  name: "Dashboard",
+  computed: {
+    type() {
+      return this.$route.name.toLowerCase();
+    },
+    list() {
+      return this.$store.state.list;
+    },
+    playing() {
+      return this.$store.state.playing;
+    },
+    workRing() {
+      return this.$store.state.workRing;
+    },
+    breakRing() {
+      return this.$store.state.breakRing;
+    }
+  },
+  methods: {
+    isActive: function(type) {
+      if (type === this.type) {
+        return { active: true };
+      }
+    },
+    /**
+     * 切換計時開關。
+     * 1. .play 會切換 .playing ，切換 play/pause 圖示
+     * 2. playing 的話， list[0] 的 time 會減少
+     * 3. 如果工作滿 25 分鐘，播開始休息鈴聲， tomato++
+     * 4. 如果休息滿 5 分鐘，播開始工作鈴聲
+     */
+    playingToggle: function() {
+      // 暫停計時
+      if (this.playing === true) {
+        this.$store.dispatch("updatePlaying", false);
+        clearInterval(this.timerID);
+        this.timerID = null;
+        // 開始計時
+      } else {
+        if (this.list.length > 0) {
+          // playing = true
+          this.$store.dispatch("updatePlaying", true);
+          let that = this;
+          this.timerID = setInterval(() => {
+            if (that.list[0].time > 0) {
+              this.$store.dispatch("updateList", {
+                type: "decreaseTime"
+              });
+            } else {
+              if (this.list[0].working === true) {
+                this.$store.dispatch("updateList", {
+                  type: "startBreak"
+                });
+                if (this.breakRing !== "none") {
+                  let audio = new Audio(
+                    require(`./../assets/music/${this.breakRing}.mp3`)
+                  );
+                  audio.play();
+                }
+              } else {
+                this.$store.dispatch("updateList", {
+                  type: "startWork"
+                });
+                if (this.workRing !== "none") {
+                  let audio = new Audio(
+                    require(`./../assets/music/${this.workRing}.mp3`)
+                  );
+                  audio.play();
+                }
+              }
+            }
+          }, 1000);
+          // 沒有 task 的時候要結束計時
+        } else {
+          if (this.timerID !== null) {
+            clearInterval(this.timerID);
+            this.timerID = null;
+          }
+        }
+      }
+    }
+  },
+  filters: {
+    timeFormat: value => {
+      let result =
+        Math.floor(value / 60)
+          .toString()
+          .padStart(2, "0") +
+        ":" +
+        (value % 60).toString().padStart(2, "0");
+      return result;
+    },
+    titleFormat: (value,len) => {
+      if (value.length > len) {
+        return value.slice(0, len) + "...";
+      }
+      else
+      {
+        return value;
+      }
+    }
+  }
 };
 </script>
 <style lang="scss" scoped>
@@ -90,7 +194,7 @@ $setting: #003164;
   background-image: url("../assets/img/todolist-dark.png");
 }
 
-.left .menu .todolist.active .sign {
+.left .menu .todolist.router-link-exact-active .sign {
   background-image: url("../assets/img/todolist-pink.png");
 }
 
@@ -98,7 +202,7 @@ $setting: #003164;
   background-image: url("../assets/img/analytics-dark.png");
 }
 
-.left .menu .analytics.active .sign {
+.left .menu .analytics.router-link-exact-active .sign {
   background-image: url("../assets/img/analytics-pink.png");
 }
 
@@ -106,7 +210,7 @@ $setting: #003164;
   background-image: url("../assets/img/ringtones-dark.png");
 }
 
-.left .menu .ringtones.active .sign {
+.left .menu .ringtones.router-link-exact-active .sign {
   background-image: url("../assets/img/ringtones-pink.png");
 }
 
@@ -117,7 +221,7 @@ $setting: #003164;
   margin-left: 8px;
 }
 
-.left .menu button.active .text {
+.left .menu button.router-link-exact-active .text {
   color: $working;
 }
 
@@ -165,8 +269,7 @@ $setting: #003164;
   background-image: url("../assets/img/play-pink.png");
 }
 
-.left .bottom .play .pauseButton {
-  display: none;
+.left .bottom .play.playing .playButton {
   background-image: url("../assets/img/pause-white.png"),
     radial-gradient($working 50%, transparent 50%);
 }
@@ -206,5 +309,48 @@ $setting: #003164;
   margin-top: 5px;
   padding: 0px 5px;
   text-align: center;
+}
+
+.dashboard.break .left .menu .todolist.router-link-exact-active .sign {
+  background-image: url("../assets/img/todolist-blue.png");
+}
+.dashboard.break .left .menu .analytics.router-link-exact-active .sign {
+  background-image: url("../assets/img/analytics-blue.png");
+}
+.dashboard.break .left .menu .ringtones.router-link-exact-active .sign {
+  background-image: url("../assets/img/ringtones-blue.png");
+}
+
+.dashboard.break .left .menu button.router-link-exact-active .text {
+  color: #00a7ff;
+}
+
+.dashboard.break .left .bottom .play .sector {
+  border-color: #00a7ff;
+}
+
+.dashboard.break .left .bottom .play.playing .sector .circle {
+  background-color: #fff;
+}
+
+.dashboard.break .left .bottom .play .playButton {
+  background-image: url("../assets/img/play-blue.png");
+}
+
+.dashboard.break .left .bottom .play.playing .playButton {
+  background-image: url("./../assets/img/pause-blue.png");
+}
+
+.dashboard.break .left .bottom .play.playing .playButton {
+  background-image: url("../assets/img/pause-white.png"),
+    radial-gradient(#00a7ff 50%, transparent 50%);
+}
+
+.dashboard.break .left .bottom .information .time {
+  color: #00a7ff;
+}
+
+.dashboard.break .analytics .focus .amount .number {
+  color: #00a7ff;
 }
 </style>

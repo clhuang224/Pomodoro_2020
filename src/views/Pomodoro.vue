@@ -3,29 +3,36 @@
     <router-view />
     <header class="header">
       <ul class="menu">
-        <li class="menu-li">
+        <li class="menu-li" v-if="isHome === true">
           <router-link
             class="button todolist"
             tag="button"
             to="/todolist"
+            @click="isHome = false"
           ></router-link>
         </li>
-        <li class="menu-li">
+        <li class="menu-li" v-if="isHome === true">
           <router-link
             class="button analytics"
             tag="button"
             to="/analytics"
+            @click="isHome = false"
           ></router-link>
         </li>
-        <li class="menu-li">
+        <li class="menu-li" v-if="isHome === true">
           <router-link
             class="button ringtones"
             tag="button"
             to="/ringtones"
+            @click="isHome = false"
           ></router-link>
         </li>
-        <li class="menu-li">
-          <router-link class="button close" tag="button" :to="{ name: 'Home' }"
+        <li class="menu-li" v-if="isHome === false">
+          <router-link
+            class="button close"
+            tag="button"
+            :to="{ name: 'Home' }"
+            @click="isHome = true"
             >╳</router-link
           >
         </li>
@@ -47,8 +54,11 @@ export default {
     },
     list() {
       return this.$store.state.list;
+    },
+    isHome() {
+      return this.$route.name === "Home";
     }
-  }
+  },
 };
 </script>
 
@@ -91,9 +101,6 @@ export default {
       }
       .ringtones {
         background-image: url("../assets/img/ringtones-white.png");
-      }
-      .close.router-link-exact-active {
-        display: none;
       }
     }
   }

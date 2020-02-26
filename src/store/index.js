@@ -21,10 +21,10 @@ export default new Vuex.Store({
         case "removeTask":
           state.list.splice(0, 1);
           localStorage.setItem("list", JSON.stringify(state.list));
-          if (state.playing) {
-            state.playing = false;
-            clearInterval(state.timerId);
-          }
+          break;
+        case "insertTask":
+          state.list.unshift(state.list.splice(payload.index, 1)[0]);
+          localStorage.setItem("list", JSON.stringify(state.list));
           break;
         case "decreaseTime":
           state.list[0].time--;
@@ -42,6 +42,9 @@ export default new Vuex.Store({
     },
     UPDATE_PLAYING: (state, playing) => {
       state.playing = playing;
+      if (playing === false) {
+        localStorage.setItem("list", JSON.stringify(state.list));
+      }
     },
     UPDATE_RINGTONE: (state, payload) => {
       if (payload.type === "work") {

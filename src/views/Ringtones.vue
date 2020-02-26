@@ -154,7 +154,12 @@ $setting: #003164;
 }
 
 .ringtones .li.active .radio::before {
-  background-image: radial-gradient(#ff4384 5px, transparent 4px);
-  border-color: #ff4384;
+  background-image: radial-gradient($working 5px, transparent 4px);
+  border-color: $working;
+}
+
+.dashboard.break .ringtones .li.active .radio::before {
+  background-image: radial-gradient($break 5px, transparent 4px);
+  border-color: $break;
 }
 </style>
