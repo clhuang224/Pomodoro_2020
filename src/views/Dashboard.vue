@@ -1,7 +1,9 @@
 <template>
   <div
     class="dashboard"
-    :class="{ break: list.length > 0 && list[0].working === false }"
+    :class="{
+      break: todoTaskList.length > 0 && todoTaskList[0].working === false
+    }"
   >
     <div class="left">
       <ul class="menu">
@@ -24,7 +26,7 @@
           </router-link>
         </li>
       </ul>
-      <div class="bottom" v-if="list.length > 0">
+      <div class="bottom" v-if="todoTaskList.length > 0">
         <div class="halfCircle"></div>
         <div class="play" :class="{ playing: playing === true }">
           <div class="sector">
@@ -32,9 +34,9 @@
           </div>
         </div>
         <div class="information">
-          <div class="time">{{ list[0].time | timeFormat }}</div>
-          <div class="currentMission">
-            {{ list[0].title | titleFormat(15) }}
+          <div class="time">{{ todoTaskList[0].time | timeFormat }}</div>
+          <div class="currentTask">
+            {{ todoTaskList[0].title | titleFormat(15) }}
           </div>
         </div>
       </div>
@@ -51,6 +53,15 @@ export default {
     },
     list() {
       return this.$store.state.list;
+    },
+    todoTaskList() {
+      let result = [];
+      for (let i = 0; i < this.list.length; i++) {
+        if (this.list[i].done === false) {
+          result.push(this.list.slice(i, i + 1)[0]);
+        }
+      }
+      return result;
     },
     playing() {
       return this.$store.state.playing;
@@ -74,7 +85,7 @@ export default {
     /**
      * 開始計時。
      * 1. playing = true
-     * 2. list[0] 的 time 會減少
+     * 2. currentTask 的 time 會減少
      * 3. 如果工作滿 25 分鐘，播開始休息鈴聲， tomato++
      * 4. 如果休息滿 5 分鐘，播開始工作鈴聲
      */
@@ -82,12 +93,12 @@ export default {
       this.$store.dispatch("updatePlaying", true);
       let that = this;
       let id = setInterval(() => {
-        if (that.list[0].time > 0) {
+        if (that.todoTaskList[0].time > 0) {
           this.$store.dispatch("updateList", {
             type: "decreaseTime"
           });
         } else {
-          if (this.list[0].working === true) {
+          if (this.todoTaskList[0].working === true) {
             this.$store.dispatch("updateList", {
               type: "startBreak"
             });
@@ -153,11 +164,12 @@ export default {
       return result;
     },
     titleFormat: (value, len) => {
-      if (value.length > len) {
-        return value.slice(0, len) + "...";
-      } else {
-        return value;
+      if (value) {
+        if (value.length > len) {
+          return value.slice(0, len) + "...";
+        }
       }
+      return value;
     }
   }
 };
@@ -316,7 +328,7 @@ $setting: #003164;
   text-align: center;
 }
 
-.left .bottom .information .currentMission {
+.left .bottom .information .currentTask {
   font-weight: bold;
   font-size: 16px;
   overflow: hidden;

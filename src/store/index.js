@@ -16,15 +16,32 @@ export default new Vuex.Store({
       switch (payload.type) {
         case "addTask":
           state.list.push(payload.task);
-          localStorage.setItem("list", JSON.stringify(state.list));
           break;
-        case "removeTask":
-          state.list.splice(0, 1);
-          localStorage.setItem("list", JSON.stringify(state.list));
+        case "doneTask":
+          for (let i = 0; i < state.list.length; i++) {
+            if (state.list[i].id === payload.id) {
+              state.list[i].done = true;
+              state.list[i].doneTime = new Date();
+              break;
+            }
+          }
+          break;
+        case "undoneTask":
+          for (let i = 0; i < state.list.length; i++) {
+            if (state.list[i].id === payload.id) {
+              state.list[i].done = false;
+              state.list[i].doneTime = null;
+              break;
+            }
+          }
           break;
         case "insertTask":
-          state.list.unshift(state.list.splice(payload.index, 1)[0]);
-          localStorage.setItem("list", JSON.stringify(state.list));
+          for (let i = 0; i < state.list.length; i++) {
+            if (state.list[i].id === payload.id) {
+              state.list.unshift(state.list.splice(i, 1)[0]);
+              break;
+            }
+          }
           break;
         case "decreaseTime":
           state.list[0].time--;
@@ -39,6 +56,7 @@ export default new Vuex.Store({
           state.list[0].tomatoAmount++;
           break;
       }
+      localStorage.setItem("list", JSON.stringify(state.list));
     },
     UPDATE_PLAYING: (state, playing) => {
       state.playing = playing;

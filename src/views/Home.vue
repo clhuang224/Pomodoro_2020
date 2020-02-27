@@ -1,7 +1,7 @@
 <template>
   <div
     class="home"
-    :class="{ break: list.length > 0 && list[0].working === false }"
+    :class="{ break: todoTaskList.length > 0 && list[0].working === false }"
   >
     <div class="content">
       <form class="addTask">
@@ -13,32 +13,39 @@
         />
         <button class="addButton" @click="addTask()">＋</button>
       </form>
-      <div v-if="list.length > 0">
+      <div v-if="todoTaskList.length > 0">
         <div class="currentTask">
           <div class="listCircle"></div>
           <div class="container">
-            <h2>{{ list[0].title | titleFormat(14) }}</h2>
+            <h2>{{ todoTaskList[0].title | titleFormat(14) }}</h2>
             <div class="tomato">
               <div
                 class="circle"
-                v-for="i in list[0].tomatoAmount"
+                v-for="i in todoTaskList[0].tomatoAmount"
                 :key="i"
               ></div>
             </div>
           </div>
         </div>
-        <div class="time">{{ list[0].time | timeFormat }}</div>
+        <div class="time">{{ todoTaskList[0].time | timeFormat }}</div>
         <ul class="todolist">
-          <li class="todolist-li" v-for="(item, index, key) in list" :key="key">
+          <li
+            class="todolist-li"
+            v-for="(item, index, key) in todoTaskList"
+            :key="key"
+          >
             <div v-if="0 < index && index <= 3" class="todolist-li-div">
               <div class="listCircle"></div>
               <p>{{ item.title | titleFormat(20) }}</p>
-              <button class="button" @click="insertTask(index)"></button>
+              <button class="button" @click="insertTask(item.id)"></button>
             </div>
           </li>
         </ul>
         <div class="container">
-          <router-link class="more" to="/todolist" v-if="list.length > 3"
+          <router-link
+            class="more"
+            to="/todolist"
+            v-if="todoTaskList.length > 3"
             >MORE</router-link
           >
         </div>
@@ -49,7 +56,7 @@
       <div class="sector">
         <div class="circle">
           <button class="playButton" @click="playingToggle()"></button>
-          <div class="finish" @click="removeTask()"></div>
+          <div class="finish" @click="doneTask(list[0].id)"></div>
         </div>
       </div>
     </div>
@@ -67,6 +74,15 @@ export default {
   computed: {
     list() {
       return this.$store.state.list;
+    },
+    todoTaskList() {
+      let result = [];
+      for (let i = 0; i < this.list.length; i++) {
+        if (this.list[i].done === false) {
+          result.push(this.list.slice(i, i + 1)[0]);
+        }
+      }
+      return result;
     },
     playing() {
       return this.$store.state.playing;
@@ -87,41 +103,55 @@ export default {
      * 詳情要看 /src/store/index.js action 中的 updateList
      */
     addTask: function() {
+      // 產生 UID
+      let d = Date.now();
+      if (
+        typeof performance !== "undefined" &&
+        typeof performance.now === "function"
+      ) {
+        d += performance.now(); //use high-precision timer if available
+      }
+      let id = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(
+        c
+      ) {
+        let r = (d + Math.random() * 16) % 16 | 0;
+        d = Math.floor(d / 16);
+        return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
+      });
       if (this.taskInput.trim() !== "") {
         this.$store.dispatch("updateList", {
           type: "addTask",
           task: {
+            id: id,
             title: this.taskInput,
-            createTime: new Date(),
+            createdTime: new Date(),
             tomatoAmount: 0,
             working: true,
             time: 25 * 60,
-            done: false
+            done: false,
+            doneTime: null
           }
         });
         this.taskInput = "";
       }
     },
-    /**
-     * 移除當下的 task。
-     * 1. list[0] 會被移除
-     * 2. 番茄鐘停止
-     * 詳情要看 /src/store/index.js action 中的 updateList
-     */
-    removeTask: function() {
-      this.pause();
+    doneTask: function(id) {
+      if (this.playing && this.todoTaskList[0].id === id) {
+        this.pause();
+      }
       this.$store.dispatch("updateList", {
-        type: "removeTask"
+        type: "doneTask",
+        id: id
       });
     },
     /**
      * 將指定 task 移到最前面並開始計時。
      */
-    insertTask: function(index) {
+    insertTask: function(id) {
       this.pause();
       this.$store.dispatch("updateList", {
         type: "insertTask",
-        index: index
+        id: id
       });
       this.play();
     },
